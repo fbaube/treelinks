@@ -5,7 +5,6 @@ package treelinks
 import (
 	"fmt"
 	"os"
-    "uuid"
 )
 
 // Methods should accept and return [Treelinkser]
@@ -85,9 +84,6 @@ func (p *Treelinks) Unlink() {
       p.SetFirstKid(nil)
       p.SetLastKid (nil)
 }
-
-func (p *Treelinks)  UUID() uuid.UUID { return p.UUIDv7 }
-func (p *Treelinks) Table() string    { return string(p.UUIDv7[13:16]) }
 
 func (p *Treelinks)    Parent() Treelinkser { return p.prnt }
 func (p *Treelinks)  FirstKid() Treelinkser { return p.kid0 }

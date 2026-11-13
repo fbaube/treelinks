@@ -1,8 +1,6 @@
 package treelinks
 
 import(
-//	FU "github.com/fbaube/fileutils"
-    "uuid"
 )
 
 // As laid out at
@@ -21,7 +19,20 @@ import(
 // own Treelinks but does not make the pair reachable from other 
 // code. So Perplexity suggests the following code:
 
-// Treelinks stores the links for a node. When persisting
+// Treelinks stores a set of links for a tree node embedded in a
+// DB-persistable object. However... every DB-persistable object
+// needs a UUID but may not need a set of links. And one may even
+// have multiple sets of links. So a UUID for a DB-persistable
+// object must be embedded below the level of links, so let's
+// assign a UUID to every Nork. 
+// 
+// So there can be a Treelinks for child nodes, for incoming links,
+// for any other object that itself has a Treelinks.
+// Each target of a link has a UUID, and therefore so does every
+// instance of Treelinks have a UUID. ANd therefore it should be
+// stored by value, not as a pointer.
+//
+// When persisting
 // to disk, the fields ( prnt prev next ) are sufficient 
 // to reconstruct a tree that has all kid nodes in their
 // correct order.
@@ -39,10 +50,10 @@ import(
 type Treelinks struct {
      // UUIDv7 includes the DB table, so that [OuterOwner] 
      // (the embedding super-struct) can be fetched by UUID
-     // directly from the DB, rather than going thru some kind
-     // of in-memory mediator / router / UUID registry that
-     // figures out which table. 
-     UUIDv7 uuid.UUID
+     // directly from the DB, rather than going thru some 
+     // kind of in-memory router / map / UUID registry
+     // that figures out which table.
+//      UUIDv7 uuid.UUID
      OuterOwner Treelinkser // not: ~Treelinks, which is a constraint 
      prnt *Treelinks   // left: optional: shown at top of L-H list
      prev *Treelinks   // previous sibling, or nil if is the first 

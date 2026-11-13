@@ -1,8 +1,6 @@
 package treelinks
 
 import (
-//	"io"
-    "uuid"
 )
 
 // Stringser is copied from
@@ -64,10 +62,10 @@ type Treelinkser interface {
 // ==========================
     Unlink()
     Links()  *Treelinks
-    UUID()    uuid.UUID
-    Table()   string // three letters 
-	Parent()  Treelinkser 
+//  UUID()    uuid.UUID
+//  TableName()  string // three letters 
 	SetParent(Treelinkser)
+	Parent()  Treelinkser 
 	HasKids() bool
 	FirstKid()  Treelinkser
 	LastKid()   Treelinkser
@@ -83,20 +81,23 @@ type Treelinkser interface {
 	Next() Treelinkser
     SetPrev(p2 Treelinkser)
     SetNext(p2 Treelinkser)
+
 // =================
 //  CHANGES TO KIDS     
 // =================
-	// AddKid returns the just-added kid, 
-	// who is added at the end of (i.e.
-    // appended to) the list of Kids.
-//     AddKid(Treelinkser) Treelinkser
-	// AddKids returns the method target
-	// - the parent of all the kids 
-//     AddKids([]Treelinkser) Treelinkser
-	   ReplaceBy(Treelinkser) Treelinkser // returns Whom
-       InsertBefore(Treelinkser)
-       InsertAfter (Treelinkser)
-    // DELETE A KID ?
+
+// AddKid returns the just-added kid, 
+// who is added at the end of (i.e.
+// appended to) the list of Kids.
+// AddKid(Treelinkser) Treelinkser
+
+// AddKids returns the method target
+// - the parent of all the kids 
+// AddKids([]Treelinkser) Treelinkser
+   ReplaceBy(Treelinkser) Treelinkser // returns Whom
+   InsertBefore(Treelinkser)
+   InsertAfter (Treelinkser)
+// DELETE A KID ?
 }
 
 /*
