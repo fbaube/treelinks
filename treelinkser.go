@@ -30,7 +30,7 @@ type Stringser interface {
 //     - UUID() UUID 
 //     - Parent() TL 
 //     - SetParent(p2 TL)
-//     - ParentOuterOwner() TL
+//     - OuterOwner() TL
 //     - HasKids() bool 
 //     - ValidateKids() error 
 //  - Kid queries
@@ -70,8 +70,10 @@ type Treelinkser interface {
 	HasKids() bool
 	FirstKid()  Treelinkser
 	LastKid()   Treelinkser
-	SetFirstKid(Treelinkser) // Prepends to ordered set of kids 
-	SetLastKid (Treelinkser) //  Appends to ordered set of kids 
+    NilOutFirstKid()
+    NilOutLastKid()
+	PrependAsFirstKid(Treelinkser) 
+	 AppendAsLastKid (Treelinkser) 
 	KidsAsSlice() []Treelinkser
     ValidateKids() error
 // ======================

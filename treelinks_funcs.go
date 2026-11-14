@@ -69,15 +69,18 @@ func (p *Treelinks) Unlink() {
       p.SetParent(nil)
       p.SetPrev(nil)
       p.SetNext(nil)
-      p.SetFirstKid(nil)
-      p.SetLastKid (nil)
+      p.NilOutFirstKid()
+      p.NilOutLastKid ()
 }
 
-func (p *Treelinks)    Parent() Treelinkser { return p.prnt }
-func (p *Treelinks)  FirstKid() Treelinkser { return p.kid0 }
-func (p *Treelinks)   LastKid() Treelinkser { return p.kidN }
-func (p *Treelinks)  SetParent(newP Treelinkser) { p.prnt = newP.Links() } 
-func (p Treelinkser) ParentOuterOwner() { return p.outerOwner } 
+func (p *Treelinks)   Parent() Treelinkser { return p.prnt }
+func (p *Treelinks) FirstKid() Treelinkser { return p.kid0 }
+func (p *Treelinks)  LastKid() Treelinkser { return p.kidN }
+func (p *Treelinks) NilOutFirstKid() { p.kid0 = nil }
+func (p *Treelinks) NilOutLastKid()  { p.kidN = nil }
+func (p *Treelinks) SetParent(newP  Treelinkser) { p.prnt = newP.Links() }
+func (p *Treelinks)    OuterOwner()   Treelinkser  { return p.outerOwner } 
+func (p *Treelinks) SetOuterOwner(newOO Treelinkser) { p.outerOwner = newOO } 
 
 func (p *Treelinks) HasKids() bool {
      if NotZV(p.kid0) && NotZV(p.kidN) { return true }
@@ -85,14 +88,43 @@ func (p *Treelinks) HasKids() bool {
      panic("IsZV:FirstKid != IsZV:LastKid")
 }
 
-// SetFirstKid prepends a Kid ? FIXME 
-func (p *Treelinks) SetFirstKid(new0 Treelinkser) {
-      p.prnt = new0.Links()
-} 
+// PrependAsFirstKid prepends a Kid to the linked list of Kids.
+func (p *Treelinks) PrependAsFirstKid(pNew0 Treelinkser) {
+      // This all should be placed behind a lock.
+      if !p.HasKids() {
+          addAsNewOnlyKid(p, pNew0.(*Treelinks) )
+        } else {
+          var pOld0 = p.kid0
+          // Parent <=> new Kid0
+          pNew0.SetParent(p)
+          p.kid0 = pNew0.(*Treelinks)
+          // newKid0 <=> oldKid0
+          pNew0.SetPrev(nil)
+          pNew0.SetNext(pOld0)
+          pOld0.SetPrev(pNew0)
+      }
+}
 
-// SetLastKid appends a Kid ? FIXME 
-func (p *Treelinks) SetLastKid (newN Treelinkser) {
-      p.prnt = newN.Links()
+// AppendAsLastKid appends a Kid to the linked list of Kids.
+func (p *Treelinks) AppendAsLastKid(pNewN Treelinkser) {
+      // This all should be placed behind a lock.
+      if !p.HasKids() {
+          addAsNewOnlyKid(p, pNewN.(*Treelinks))
+        } else {
+          var pOldN = p.kidN
+          // Parent <=> new KidN
+          pNewN.SetParent(p)
+          p.kidN = pNewN.(*Treelinks)
+          // newKidN <=> oldKidN
+          pNewN.SetNext(nil)
+          pNewN.SetPrev(pOldN)
+          pOldN.SetNext(pNewN)
+      }
+}
+
+func addAsNewOnlyKid(pParent, pKid *Treelinks) {
+     pKid.prnt = pParent
+     pParent.kid0, pParent.kidN = pKid, pKid
 }
 
 func (p *Treelinks) ValidateKids() error {
