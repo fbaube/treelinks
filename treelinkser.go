@@ -70,8 +70,6 @@ type Treelinkser interface {
 	HasKids() bool
 	FirstKid()  Treelinkser
 	LastKid()   Treelinkser
-    NilOutFirstKid()
-    NilOutLastKid()
 	PrependAsFirstKid(Treelinkser) 
 	 AppendAsLastKid (Treelinkser) 
 	KidsAsSlice() []Treelinkser
@@ -89,22 +87,14 @@ type Treelinkser interface {
 //  CHANGES TO KIDS     
 // =================
 
-// AddKid returns the just-added kid, 
-// who is added at the end of (i.e.
-// appended to) the list of Kids.
-// AddKid(Treelinkser) Treelinkser
-
-// AddKids returns the method target
-// - the parent of all the kids 
-// AddKids([]Treelinkser) Treelinkser
-   ReplaceBy(Treelinkser) Treelinkser // returns Whom
-   InsertBefore(Treelinkser)
-   InsertAfter (Treelinkser)
+   AddKids([]Treelinkser) 
+   ReplaceBy(Treelinkser) Treelinkser // returns p, unlinked 
+   InsertBefore(Treelinkser) // TBD Define the semanics 
+   InsertAfter (Treelinkser) // TBD Define the semanics 
 // DELETE A KID ?
 }
 
 /*
-
 type Norker interface {
      	Stringser
         Treelinkser 

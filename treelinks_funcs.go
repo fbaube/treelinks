@@ -3,13 +3,11 @@
 package treelinks
 
 import (
-	"fmt"
-	"os"
 )
 
-// Methods should accept and return [Treelinkser] wherever
-// possible; only actual interface implementations take as
-// the method receiver a [*Treelinks].
+// Methods should accept and (when necessary) return
+// [Treelinkser] wherever possible; only actual interface
+// implementations take as the method receiver a [*Treelinks].
 
 // On input (reading from DB) we use UUIDs to link *Nork's
 // into a tree, and on output (writing to the DB) we write
@@ -63,21 +61,18 @@ import (
 // ==========================
 
 func (p *Treelinks) Unlink() {
-//    p.prnt, p.prev, p,next, p.kid0, p,kidN =
-//        ZV(T), ZV(T), ZV(T), ZV(T), ZV(T) }
-//    var theZV T = ZV[T]()
       p.SetParent(nil)
       p.SetPrev(nil)
       p.SetNext(nil)
-      p.NilOutFirstKid()
-      p.NilOutLastKid ()
+//    p.NilOutFirstKid()
+//    p.NilOutLastKid ()
 }
 
 func (p *Treelinks)   Parent() Treelinkser { return p.prnt }
 func (p *Treelinks) FirstKid() Treelinkser { return p.kid0 }
 func (p *Treelinks)  LastKid() Treelinkser { return p.kidN }
-func (p *Treelinks) NilOutFirstKid() { p.kid0 = nil }
-func (p *Treelinks) NilOutLastKid()  { p.kidN = nil }
+// func (p *Treelinks) NilOutFirstKid() { p.kid0 = nil }
+// func (p *Treelinks) NilOutLastKid()  { p.kidN = nil }
 func (p *Treelinks) SetParent(newP  Treelinkser) { p.prnt = newP.Links() }
 func (p *Treelinks)    OuterOwner()   Treelinkser  { return p.outerOwner } 
 func (p *Treelinks) SetOuterOwner(newOO Treelinkser) { p.outerOwner = newOO } 
@@ -137,15 +132,15 @@ func (p *Treelinks) ValidateKids() error {
 // =============
 
 func (p *Treelinks) KidsAsSlice() []Treelinkser {
-     var slofT = make([]Treelinkser, 0)
-     if !p.HasKids() { return slofT }
-     var nexT *Treelinks
-     nexT = p.kid0 // MAYBE have to get its Treelinks ? 
-     for NotZV(nexT) {
-         slofT = append(slofT, nexT)
-         nexT = nexT.Links().Next().(*Treelinks)
+     var kidSlice = make([]Treelinkser, 0)
+     if !p.HasKids() { return kidSlice }
+     var nextKid *Treelinks
+     nextKid = p.kid0 
+     for NotZV(nextKid) {
+         kidSlice = append(kidSlice, nextKid.Links())
+         nextKid = nextKid.Next().(*Treelinks)
          }
-     return slofT
+     return kidSlice
 }
 
 // ======================
@@ -163,19 +158,21 @@ func (p *Treelinks) SetNext(newN Treelinkser) { p.next = newN.Links() }
 //  CHANGES TO KIDS 
 // =================
 
+/*
 // AddKid adds the supplied node as the last kid, and returns
 // it (i.e. the new last kid), now linked into the tree.
 func (p *Treelinks) AddKid(aKid Treelinkser) Treelinkser { // returns aKid
 	// Set the level & parent now
 //	aKid.SetLevel(p.Level() + 1)
 	aKid.SetParent(p)
+    aKid = aKid.Links() 
 	if !p.HasKids() { 
 		// ---------------------------------------
 		//  No Kids yet: New Kid will be ONLY Kid
 		// ---------------------------------------
-		p.kid0, p.kidN = aKid.Links(), aKid.Links()
-        aKid.Links().SetPrev(nil)
-        aKid.Links().SetNext(nil)
+		p.kid0, p.kidN = aKid, aKid 
+        aKid.SetPrev(nil)
+        aKid.SetNext(nil)
 	} else { 
 		// ---------------------
 		//  Add as new last kid
@@ -184,66 +181,17 @@ func (p *Treelinks) AddKid(aKid Treelinkser) Treelinkser { // returns aKid
 	}
 	return aKid
 }
+*/
 
-// AddKids adds the supplied nodes as kids, after 
-// any pre-existing kids, and returns the parent.
-// The supplied nodes may NOT be already linked
-// to each other as a linked list. 
-func (p *Treelinks) AddKids(rKids []Treelinkser) Treelinkser { // returns p 
-	// fmt.Printf("nord: ptrs? aKid<%T> p<%T> \n", aKid, p)
-	for _, aKid := range rKids {	
-	    if aKid.Prev() != nil || aKid.Next() != nil {
-		fmt.Fprintf(os.Stdout, "FATAL in AddKids: Tag<< %+v >> kid<< %+v >>\n", p, aKid)
-		panic("AddKids(K) can't cos K has siblings")
-		}
-	    if aKid.Parent() != nil && aKid.Parent() != p {
-		fmt.Fprintf(os.Stdout, "FATAL in AddKids: Tag<< %+v >> kid<< %+v >>\n", p, aKid)
-		panic("E.AddKids(K) can't cos K has non-P parent")
-		}
-	    // All clear! Go ahead and add the kid.
-	    _ = p.AddKid(aKid)
+// AddKids appends the supplied Kids to the linked list of Kids.
+func (p *Treelinks) AddKids(rKids []Treelinkser) { 
+	for _, aKid := range rKids {
+        p.AppendAsLastKid(aKid.Links())
 	}
-	// FIXME JEEZ
-	// For each new, set parent, then append whole mess to kids
 	/*
-	var FK = p.firstKid
-	var LK = p.lastKid
 	// Set the level now
 	aKid.setLevel(p.Level() + 1)
-	// Is the new kid an only kid ?
-	if FK == nil && LK == nil {
-		p.firstKid, p.lastKid = aKid, aKid
-		aKid.SetParent(p)
-		aKid.SetPrev(nil)
-		aKid.SetNext(nil)
-		return aKid
-	}
-	if !(FK != nil && LK != nil) {
-		panic("BAD KID LINKS")
-	}
-	// So, replace the last kid
-	if LK != nil {
-		if LK.Parent() != p {
-			fmt.Fprintf(os.Stdout, "FATAL in AddKid: E<< %+v >> K<< %+v >>\n", p, aKid)
-			panic("E.AddKid: E's last kid dusnt know E")
-		}
-		if LK.Next() != nil {
-			fmt.Fprintf(os.Stdout, "FATAL in AddKid: E<< %+v >> K<< %+v >>\n", p, aKid)
-			panic("E.AddKid: E's last kid has a next kid")
-		}
-		LK.SetNext(aKid) // LK.nextKid = aKid
-		aKid.SetPrev(LK) // aKid.prevKid = LK
-		p.lastKid = aKid
-		aKid.SetParent(p)
-		return aKid
-	}
-
-	}
-	fmt.Fprintf(os.Stdout, "FATAL in AddKids: " +
-		"E<< %+v >> K<< %+v >>\n", p, rKids)
-	panic("AddKids: Chaos!")
 	*/
-	return p
 }
 
 func (p *Treelinks) InsertBefore(p2 Treelinkser) { }
