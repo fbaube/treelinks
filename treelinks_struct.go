@@ -62,7 +62,8 @@ type Treelinks struct {
      kidN *Treelinks   //  last kid in linked list of kids 
      usrs []*Treelinks // left: incoming: symlinks(FSO)/referrers(CMS)
 //   tags []*Treelinks // topp: incoming: tags/facets
-//   vers []*Treelinks // botm: versions: is a list, not a tree 
+//   vers []*Treelinks // botm: versions: is a list, not a tree
+     level int 
 }
 
 // ===========================

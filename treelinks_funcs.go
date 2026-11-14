@@ -68,6 +68,9 @@ func (p *Treelinks) Unlink() {
 //    p.NilOutLastKid ()
 }
 
+func (p *Treelinks) Level() int { return p.level }
+func (p *Treelinks) SetLevel(newL int) { p.level = newL }
+
 func (p *Treelinks)   Parent() Treelinkser { return p.prnt }
 func (p *Treelinks) FirstKid() Treelinkser { return p.kid0 }
 func (p *Treelinks)  LastKid() Treelinkser { return p.kidN }
@@ -97,6 +100,7 @@ func (p *Treelinks) PrependAsFirstKid(pNew0 Treelinkser) {
           pNew0.SetPrev(nil)
           pNew0.SetNext(pOld0)
           pOld0.SetPrev(pNew0)
+          pNew0.SetLevel(p.Level() + 1)
       }
 }
 
@@ -114,12 +118,14 @@ func (p *Treelinks) AppendAsLastKid(pNewN Treelinkser) {
           pNewN.SetNext(nil)
           pNewN.SetPrev(pOldN)
           pOldN.SetNext(pNewN)
+          pNewN.SetLevel(p.Level() + 1)
       }
 }
 
 func addAsNewOnlyKid(pParent, pKid *Treelinks) {
      pKid.prnt = pParent
      pParent.kid0, pParent.kidN = pKid, pKid
+     pKid.SetLevel(pParent.Level() + 1)
 }
 
 func (p *Treelinks) ValidateKids() error {
@@ -151,8 +157,15 @@ func (p *Treelinks) KidsAsSlice() []Treelinkser {
 func (p *Treelinks) Prev() Treelinkser { return p.prev }
 func (p *Treelinks) Next() Treelinkser { return p.next }
 
-func (p *Treelinks) SetPrev(newP Treelinkser) { p.prev = newP.Links() }
-func (p *Treelinks) SetNext(newN Treelinkser) { p.next = newN.Links() }
+func (p *Treelinks) SetPrev(newP Treelinkser) {
+      p.prev = newP.Links()
+      newP.SetLevel(p.Level())
+}
+
+func (p *Treelinks) SetNext(newN Treelinkser) {
+      p.next = newN.Links()
+      newN.SetLevel(p.Level())
+}
 
 // =================
 //  CHANGES TO KIDS 

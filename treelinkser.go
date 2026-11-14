@@ -32,7 +32,7 @@ type Stringser interface {
 //     - SetParent(p2 TL)
 //     - OuterOwner() TL
 //     - HasKids() bool 
-//     - ValidateKids() error 
+//     - ValidateKids() error
 //  - Kid queries
 //     - FirstKid() TL
 //     - LastKid()  TL
@@ -64,10 +64,12 @@ type Treelinkser interface {
     Unlink()
     Links()  *Treelinks
 //  UUID()    uuid.UUID
-//  TableName()  string // three letters 
+//  TableName()  string // three letters
 	SetParent(Treelinkser)
 	Parent()  Treelinkser 
 	HasKids() bool
+    Level() int
+    SetLevel(int) 
 	FirstKid()  Treelinkser
 	LastKid()   Treelinkser
 	PrependAsFirstKid(Treelinkser) 
