@@ -7,50 +7,36 @@ import (
 	"os"
 )
 
-// Methods should accept and return [Treelinkser]
-// everywhere possible; only really low-level stuff
-// might need to use [*Treelinks].
+// Methods should accept and return [Treelinkser] wherever
+// possible; only actual interface implementations take as
+// the method receiver a [*Treelinks].
 
-// In this PoC (Proof of Concept)...
-// All these func's are on << (p *Treelinks[T]) >>, 
-// and have to work when T is [*Nork], and "should 
-// work" (TBD) when T is [Uuid7].
-//
-// This poses a challenge, because when T is [*Nork] 
-// we can directly add them to and delete them from
-// [Treelinks] fields, and maintain our tree structure,
-// but when T is [Uuid7], it is only a reference to a
-// [*Nork] - not even a handle - so basically a Uuid7
-// Treelinks shadows a ™Nork Treelinks.
-// 
-// So on input (reading from DB) we have to use the 
-// UUIDs to link *Nork's into a tree, and on output 
-// (writing to the DB) we write out the UUIDs.
+// On input (reading from DB) we use UUIDs to link *Nork's
+// into a tree, and on output (writing to the DB) we write
+// out the UUIDs.
 
-// 2026.11: We need a way to persist the order of Kid nodes 
-// to the DB, so let's
+// We need to persist the order of Kid nodes to the DB, so 
 //  - keep using fields Prev and Next, and
 //  - make sure they get persisted to the DB, and
 //  - when storing them in memory, continue to use a
 //    linked list instead of storing kids in a slice.
 
 // We'd like to use a slice for Kids. But it doesn't
-// preserve prev/next info when persisted to DB. And
-// if we *do* try to persist prev/next info, we need
-// a unique ID for each node, but using an ID assigned
-// by SQLite, or the node's abs/rel path - these are
-// error-prone. Instead we now use a UUID, so it makes
-// sense to also use the UUID for prev/next. Therefore
-// when we persist a node to the DB:
+// preserve prev/next info when persisted to the DB. 
+// To persist prev/next info, we need a unique ID 
+// for each node, but... if we use an ID assigned 
+// by SQLite, or the node's abs/rel path - these 
+// are error-prone. Instead we now use a UUID, so 
+// it makes sense to also use the UUID for prev/next. 
+// Therefore when we persist a node to the DB:
 //  - We MUST persist the UUID for the parent node 
-//  - We MUST for the prev & next nodes 
-//  - We MAY  for the first & last kids (kid0 & kidN),
-//    altho a tree may be reconstructed using only
-//    the above three fields; using five provides
-//    redundancy for error checking
-//  - Additional redundancy for error checking is
-//    provided when we read a tree back in from the
-//    DB, by checking paths to match kids to parents
+//  - We MUST for the prev & next nodes too 
+//  - We MAY  for the first & last kids (kid0 & kidN)
+//  - A tree may be reconstructed using only the first
+//    three fields (parent,prev,next), but using five 
+//    provides redundancy for error checking: when we
+//    read a tree back in from the DB, we check paths
+//    to match kids to parents independently of UUIDs
 //
 // Another problem with using slices was that if for
 // example we want prev or next peer/sibling, we must
@@ -66,9 +52,11 @@ import (
 // items rather than in a línk table, as required
 // for 1-to-N or N-to-1. Links for parent, prev,
 // next, firstKid, and lastKid are all 1-to-1.
+// Parent-to-kids is 1-to-N but this link is
+// not strictly necessary, as discussed above.
 //
-// Therefore a persisted Nork has five fields:
-// Prnt, Prev, Next, Kid1, KidN.
+// Therefore a persisted Nork has three or five fields:
+// Prnt, Prev, Next ; Kid0, KidN.
 
 // ==========================
 //  BASIC PARENT/CHILD STUFF
@@ -88,7 +76,8 @@ func (p *Treelinks) Unlink() {
 func (p *Treelinks)    Parent() Treelinkser { return p.prnt }
 func (p *Treelinks)  FirstKid() Treelinkser { return p.kid0 }
 func (p *Treelinks)   LastKid() Treelinkser { return p.kidN }
-func (p *Treelinks) SetParent(newP Treelinkser) { p.prnt = newP.Links() } 
+func (p *Treelinks)  SetParent(newP Treelinkser) { p.prnt = newP.Links() } 
+func (p Treelinkser) ParentOuterOwner() { return p.outerOwner } 
 
 func (p *Treelinks) HasKids() bool {
      if NotZV(p.kid0) && NotZV(p.kidN) { return true }

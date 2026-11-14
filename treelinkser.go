@@ -29,7 +29,8 @@ type Stringser interface {
 //     - Links() TL
 //     - UUID() UUID 
 //     - Parent() TL 
-//     - SetParent(p2 TL) 
+//     - SetParent(p2 TL)
+//     - ParentOuterOwner() TL
 //     - HasKids() bool 
 //     - ValidateKids() error 
 //  - Kid queries

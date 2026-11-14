@@ -54,7 +54,7 @@ type Treelinks struct {
      // kind of in-memory router / map / UUID registry
      // that figures out which table.
 //      UUIDv7 uuid.UUID
-     OuterOwner Treelinkser // not: ~Treelinks, which is a constraint 
+     outerOwner Treelinkser // not: ~Treelinks, which is a constraint 
      prnt *Treelinks   // left: optional: shown at top of L-H list
      prev *Treelinks   // previous sibling, or nil if is the first 
      next *Treelinks   // next sibling,  or nil if it is the last 
