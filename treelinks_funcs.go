@@ -60,21 +60,19 @@ import (
 //  BASIC PARENT/CHILD STUFF
 // ==========================
 
+
 func (p *Treelinks) Unlink() {
-      p.SetParent(nil)
-      p.SetPrev(nil)
-      p.SetNext(nil)
-//    p.NilOutFirstKid()
-//    p.NilOutLastKid ()
+      p.prnt, p.prev, p.next, p.kid0, p.kidN = nil, nil, nil, nil, nil
 }
 
+// ==========================
+//  ONE-LINER ATOMIC METHODS 
+// ==========================
 func (p *Treelinks) Level() int { return p.level }
 func (p *Treelinks) SetLevel(newL int) { p.level = newL }
 func (p *Treelinks)   Parent() Treelinkser { return p.prnt }
 func (p *Treelinks) FirstKid() Treelinkser { return p.kid0 }
 func (p *Treelinks)  LastKid() Treelinkser { return p.kidN }
-// func (p *Treelinks) NilOutFirstKid() { p.kid0 = nil }
-// func (p *Treelinks) NilOutLastKid()  { p.kidN = nil }
 func (p *Treelinks) SetParent(newP  Treelinkser) { p.prnt = newP.Links() }
 func (p *Treelinks)    OuterOwner()   Treelinkser  { return p.outerOwner } 
 func (p *Treelinks) SetOuterOwner(newOO Treelinkser) { p.outerOwner = newOO } 
@@ -169,31 +167,6 @@ func (p *Treelinks) SetNext(newN Treelinkser) {
 // =================
 //  CHANGES TO KIDS 
 // =================
-
-/*
-// AddKid adds the supplied node as the last kid, and returns
-// it (i.e. the new last kid), now linked into the tree.
-func (p *Treelinks) AddKid(aKid Treelinkser) Treelinkser { // returns aKid
-	// Set the level & parent now
-//	aKid.SetLevel(p.Level() + 1)
-	aKid.SetParent(p)
-    aKid = aKid.Links() 
-	if !p.HasKids() { 
-		// ---------------------------------------
-		//  No Kids yet: New Kid will be ONLY Kid
-		// ---------------------------------------
-		p.kid0, p.kidN = aKid, aKid 
-        aKid.SetPrev(nil)
-        aKid.SetNext(nil)
-	} else { 
-		// ---------------------
-		//  Add as new last kid
-		// ---------------------
-		// FIXME var last = p.kidN()
-	}
-	return aKid
-}
-*/
 
 // AppendAllKids appends the supplied Kids to the linked list of Kids.
 func (p *Treelinks) AppendAllKids(rKids []Treelinkser) { 
