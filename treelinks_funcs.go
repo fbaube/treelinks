@@ -195,8 +195,8 @@ func (p *Treelinks) AddKid(aKid Treelinkser) Treelinkser { // returns aKid
 }
 */
 
-// AddKids appends the supplied Kids to the linked list of Kids.
-func (p *Treelinks) AddKids(rKids []Treelinkser) { 
+// AppendAllKids appends the supplied Kids to the linked list of Kids.
+func (p *Treelinks) AppendAllKids(rKids []Treelinkser) { 
 	for _, aKid := range rKids {
         p.AppendAsLastKid(aKid.Links())
 	}
@@ -206,6 +206,6 @@ func (p *Treelinks) AddKids(rKids []Treelinkser) {
 	*/
 }
 
-func (p *Treelinks) InsertBefore(p2 Treelinkser) { }
-func (p *Treelinks) InsertAfter (p2 Treelinkser) { }
-func (p *Treelinks) ReplaceBy(p2 Treelinkser) Treelinkser { return Treelinkser(p) }
+func (p *Treelinks) BeforeItInsert(p2 Treelinkser) { }
+func (p *Treelinks)  AfterItInsert(p2 Treelinkser) { }
+func (p *Treelinks)      ReplaceBy(p2 Treelinkser) { } 

@@ -17,30 +17,27 @@ import(
 // The latter seems dangerous, cos it does things globally; the
 // former keeps an embedding super-struct tightly linked to its 
 // own Treelinks but does not make the pair reachable from other 
-// code. So Perplexity suggests the following code:
+// code.
 
 // Treelinks stores a set of links for a tree node embedded in a
 // DB-persistable object. However... every DB-persistable object
-// needs a UUID but may not need a set of links. And one may even
-// have multiple sets of links. So a UUID for a DB-persistable
-// object must be embedded below the level of links, so let's
+// needs a UUID but may not need a set of links (e.g. content
+// import Inbatch). And one may even have multiple sets of links
+// (e.g. for Norks and for UUIDs). So a UUID for a DB-persistable
+// object must be embedded "above" the level of links, so let's
 // assign a UUID to every Nork. 
 // 
 // So there can be a Treelinks for child nodes, for incoming links,
 // for any other object that itself has a Treelinks.
-// Each target of a link has a UUID, and therefore so does every
-// instance of Treelinks have a UUID. ANd therefore it should be
-// stored by value, not as a pointer.
+// 
+// Each target of a link has a UUID that includes a DB table name,
+// and this is sufficient to fetch the object and then access its
+// Nork.UUID and its Nork.Links 
 //
-// When persisting
-// to disk, the fields ( prnt prev next ) are sufficient 
-// to reconstruct a tree that has all kid nodes in their
-// correct order.
-//
-// There needs to be a distinguished "empty value" 
-// to mark a non-value, and for a pointer this is 
-// nil. (Be careful tho, because a nil instance of
-// an interface is not nil!)
+// When persisting to disk, the fields ( prnt prev next ) are
+// sufficient to reconstruct a tree that has all kid nodes in
+// their correct order. Pointers to first kid and last kid add
+// redundancy for integrity checking. 
 //
 // When a tree structure is built that extends upward,
 // with the root at the bottom, maybe some of these field
@@ -48,12 +45,6 @@ import(
 // and "down" are reversed, and so are "parent and "kid". 
 // .
 type Treelinks struct {
-     // UUIDv7 includes the DB table, so that [OuterOwner] 
-     // (the embedding super-struct) can be fetched by UUID
-     // directly from the DB, rather than going thru some 
-     // kind of in-memory router / map / UUID registry
-     // that figures out which table.
-//      UUIDv7 uuid.UUID
      outerOwner Treelinkser // not: ~Treelinks, which is a constraint 
      prnt *Treelinks   // left: optional: shown at top of L-H list
      prev *Treelinks   // previous sibling, or nil if is the first 
@@ -61,8 +52,8 @@ type Treelinks struct {
      kid0 *Treelinks   // first kid in linked list of kids 
      kidN *Treelinks   //  last kid in linked list of kids 
      usrs []*Treelinks // left: incoming: symlinks(FSO)/referrers(CMS)
-//   tags []*Treelinks // topp: incoming: tags/facets
-//   vers []*Treelinks // botm: versions: is a list, not a tree
+//   tags []*Treelinks // topp: incoming: (TBS) tags/facets 
+//   vers []*Treelinks // botm: versions: (TBD) is a list, not a tree 
      // Level is zero-based (i.e. root Nork's is 0)
      level int 
 }
@@ -76,14 +67,15 @@ type Treelinks struct {
 // https://www.perplexity.ai/search/717b5c69-194e-4599-88d6-2f00ee7a236a 
 func ZV[T comparable]() T {
      // zed is not initialized to any specific valur,
-     // so it gets initialized to the "zero value" !
+     // so it gets initialized to the "zero value".
+     // Problem solved. 
      var zed T
      return zed
 }
 
 // IsZV reports whether arg is the zero value for T.
 // https://www.perplexity.ai/search/717b5c69-194e-4599-88d6-2f00ee7a236a 
-// NOTE: "==" works byte-for-byte for UUIDs !!
+// NOTE: "==" works byte-for-byte for UUIDs cos they are an array, not a slice!
 // See https://www.perplexity.ai/search/717b5c69-194e-4599-88d6-2f00ee7a236a 
 // .
 func IsZV[T comparable](arg T) bool {
@@ -93,7 +85,7 @@ func IsZV[T comparable](arg T) bool {
 
 // NotZV reports whether arg is the zero value for T.
 // https://www.perplexity.ai/search/717b5c69-194e-4599-88d6-2f00ee7a236a 
-// NOTE: "==" works byte-for-byte for UUIDs !!
+// NOTE: "==" works byte-for-byte for UUIDs cos they are an array, not a slice!
 // See https://www.perplexity.ai/search/717b5c69-194e-4599-88d6-2f00ee7a236a 
 // .
 func NotZV[T comparable](arg T) bool {
