@@ -70,7 +70,6 @@ func (p *Treelinks) Unlink() {
 
 func (p *Treelinks) Level() int { return p.level }
 func (p *Treelinks) SetLevel(newL int) { p.level = newL }
-
 func (p *Treelinks)   Parent() Treelinkser { return p.prnt }
 func (p *Treelinks) FirstKid() Treelinkser { return p.kid0 }
 func (p *Treelinks)  LastKid() Treelinkser { return p.kidN }

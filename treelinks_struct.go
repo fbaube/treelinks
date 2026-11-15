@@ -63,6 +63,7 @@ type Treelinks struct {
      usrs []*Treelinks // left: incoming: symlinks(FSO)/referrers(CMS)
 //   tags []*Treelinks // topp: incoming: tags/facets
 //   vers []*Treelinks // botm: versions: is a list, not a tree
+     // Level is zero-based (i.e. root Nork's is 0)
      level int 
 }
 
