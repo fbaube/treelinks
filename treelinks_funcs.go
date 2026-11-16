@@ -179,6 +179,21 @@ func (p *Treelinks) AppendAllKids(rKids []Treelinkser) {
 	*/
 }
 
-func (p *Treelinks) BeforeItInsert(p2 Treelinkser) { }
+func (oldTL *Treelinks) BeforeItInsert(newTL Treelinkser) {
+      // if oldTL is the first in the list, it's a special case
+      newTL.SetParent(oldTL.Parent())
+      if oldTL.prev == nil {
+         oldTL.prev = newTL.(*Treelinks)
+         newTL.SetNext(oldTL)
+         newTL.SetPrev(nil)
+       } else {
+         var oldPrev = oldTL.prev
+         oldPrev.SetNext(newTL)
+         newTL.SetPrev(oldPrev)
+         newTL.SetNext(oldTL)
+         oldTL.SetPrev(newTL)
+      }
+}
+
 func (p *Treelinks)  AfterItInsert(p2 Treelinkser) { }
 func (p *Treelinks)      ReplaceBy(p2 Treelinkser) { } 
