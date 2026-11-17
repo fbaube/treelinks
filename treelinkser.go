@@ -13,18 +13,18 @@ type Stringser interface {
         Debug() string
 }
 
-// Links can be called on an "outer owning" struct
-// that embeds Treelinks, and the func "digs down" 
-// to return a pointer to the Treelinks. 
-func (p *Treelinks) Links() *Treelinks { return p }
+// Links (part of interface Treelinkser) gets promoted
+// in embedding structs, so that it can be called on 
+// an "outer owning" struct that embeds Treelinks. 
+func (p *Treelinks) LinksPtr() *Treelinks { return p }
 
 // Treelinkser is implemented by [*Treelinks] NOT by Treelinks. Therefore
-//  - We never use a pointer (i.e. *Treelinkser makes no sense), and
+//  - We never use a pointer to it (i.e. *Treelinkser makes no sense), and
 //  - Every method on a Treelinks has write access to all the fields. 
 //
 // When an interface method returns a Treelinkser, it can 
-// return an outer-owning embedding struct (when it is not 
-// nil). But for now (2026.11) we will return a *Treelinks. 
+// return an outer-owning embedding struct (that is not nil).
+// But for now (2026.11) we will return a *Treelinks. 
 
 type Treelinkser interface {
 
@@ -34,7 +34,7 @@ type Treelinkser interface {
 //    (getters and setters 
 //    have no side effects) 
 // ==========================
-	Unlink()
+	   Unlink()
 	   Parent() Treelinkser 
 	    Level() int 
 	SetParent(Treelinkser) 
@@ -44,8 +44,8 @@ type Treelinkser interface {
 	  LastKid() Treelinkser 
 	   OuterOwner() Treelinkser  
 	SetOuterOwner(newOO Treelinkser) 
-    Links() *Treelinks // Omit this so that it dusnt
-//  have to be type-casted to *Treelinks all the time 
+    LinksPtr() *Treelinks // had omitted this to 
+//  avoid type-casting to *Treelinks all the time 
 // =======================
 //   PREV & NEXT PEERS
 //   (i.e. SIBLINGS in

@@ -73,7 +73,7 @@ func (p *Treelinks) SetLevel(newL int) { p.level = newL }
 func (p *Treelinks)   Parent() Treelinkser { return p.prnt }
 func (p *Treelinks) FirstKid() Treelinkser { return p.kid0 }
 func (p *Treelinks)  LastKid() Treelinkser { return p.kidN }
-func (p *Treelinks) SetParent(newP  Treelinkser) { p.prnt = newP.Links() }
+func (p *Treelinks) SetParent(newP  Treelinkser) { p.prnt = newP.LinksPtr() }
 func (p *Treelinks)    OuterOwner()   Treelinkser  { return p.outerOwner } 
 func (p *Treelinks) SetOuterOwner(newOO Treelinkser) { p.outerOwner = newOO } 
 
@@ -140,7 +140,7 @@ func (p *Treelinks) KidsAsSlice() []Treelinkser {
      var nextKid *Treelinks
      nextKid = p.kid0 
      for NotZV(nextKid) {
-         kidSlice = append(kidSlice, nextKid.Links())
+         kidSlice = append(kidSlice, nextKid.LinksPtr())
          nextKid = nextKid.Next().(*Treelinks)
          }
      return kidSlice
@@ -155,12 +155,12 @@ func (p *Treelinks) Prev() Treelinkser { return p.prev }
 func (p *Treelinks) Next() Treelinkser { return p.next }
 
 func (p *Treelinks) SetPrev(newP Treelinkser) {
-      p.prev = newP.Links()
+      p.prev = newP.LinksPtr()
       newP.SetLevel(p.Level())
 }
 
 func (p *Treelinks) SetNext(newN Treelinkser) {
-      p.next = newN.Links()
+      p.next = newN.LinksPtr()
       newN.SetLevel(p.Level())
 }
 
@@ -171,7 +171,7 @@ func (p *Treelinks) SetNext(newN Treelinkser) {
 // AppendAllKids appends the supplied Kids to the linked list of Kids.
 func (p *Treelinks) AppendAllKids(rKids []Treelinkser) { 
 	for _, aKid := range rKids {
-        p.AppendAsLastKid(aKid.Links())
+        p.AppendAsLastKid(aKid.LinksPtr())
 	}
 	/*
 	// Set the level now
