@@ -155,13 +155,21 @@ func (p *Treelinks) Prev() Treelinkser { return p.prev }
 func (p *Treelinks) Next() Treelinkser { return p.next }
 
 func (p *Treelinks) SetPrev(newP Treelinkser) {
-      p.prev = newP.LinksPtr()
-      newP.SetLevel(p.Level())
+      if newP == nil {
+         p.prev = nil
+       } else {
+         p.prev = newP.LinksPtr()
+         newP.SetLevel(p.Level())
+       }
 }
 
 func (p *Treelinks) SetNext(newN Treelinkser) {
-      p.next = newN.LinksPtr()
-      newN.SetLevel(p.Level())
+      if newN == nil {
+         p.next = nil
+       } else {
+         p.next = newN.LinksPtr()
+         newN.SetLevel(p.Level())
+       }
 }
 
 // =================
